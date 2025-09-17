@@ -152,7 +152,6 @@ export default function Lab1() {
                 <br />
                 <img id="wd-teslabot" src="/images/teslabot.jpg" height="200px" alt="teslabot" />
             </div>
-
             <div id="wd-forms">
                 <h4>Form Elements</h4>
                 <form id="wd-text-fields">
@@ -259,6 +258,11 @@ export default function Lab1() {
                 </form>
                 </div>
 
+            <h4>Anchor tag</h4>
+            Please
+            <a href="https://www.lipsum.com" id="wd-lipsum">click here</a>
+            to get dummy text<br/>
+            Click <a href="https://github.com/eblankenship27/kambaz-next-js" id="wd-github">here</a> to get to my github
         </div>
     );
 }
