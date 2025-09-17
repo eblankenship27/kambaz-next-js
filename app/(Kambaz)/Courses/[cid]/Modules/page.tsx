@@ -12,7 +12,7 @@ export default function Modules() {
                 <button type="button" id="wd-view-progress" >View Progress</button>
             </td>
             <td>
-                <select id="wd-publish-all" value="Publish All">
+                <select id="wd-publish-all" defaultValue="Publish All">
                     <option value="Publish All" >Publish All</option>
                 </select>
             </td>
