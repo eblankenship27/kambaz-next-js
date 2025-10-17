@@ -1,12 +1,19 @@
+"use client"
+import { useParams } from "next/navigation";
+import * as db from "../../../../Database";
 import { Button, Col, FormCheck, FormControl, FormLabel, FormSelect, InputGroup, Row, Table } from "react-bootstrap";
 import InputGroupText from "react-bootstrap/esm/InputGroupText";
 import { CiCalendar } from "react-icons/ci";
+import Link from "next/link";
 
 export default function AssignmentEditor() {
+    const { cid, aid } = useParams();
+
+    const assignment = db.assignments.find((assignment) => assignment._id === aid)
   return (
     <div id="wd-assignments-editor">
         <FormLabel>Assignment Name</FormLabel>
-        <FormControl type="email" placeholder="A1" className="" />
+        <FormControl type="email" placeholder={assignment?.title} className="" />
         <br />
         <div
             contentEditable={true}
@@ -14,16 +21,7 @@ export default function AssignmentEditor() {
             style={{ minHeight: "100px" }}
             suppressContentEditableWarning={true}
             >
-            The assignment is <span className="text-danger">available online</span><br /><br />
-            Submit a link to the landing page of your Web application running on Netlify.<br /><br />
-            The landing page should include the following:
-            <ul>
-                <li>Your full name and section</li>
-                <li>Links to each of the lab assignments</li>
-                <li>Links to the Kambaz application</li>
-                <li>Links to all relevant source code repositories</li>
-            </ul>
-            The Kambaz application should include a link to navigate back to the landing page.
+            {assignment?.description}
         </div>
         <br /><br />
         <Table className="gap-4">
@@ -32,7 +30,7 @@ export default function AssignmentEditor() {
                     Points
                 </Col>
                 <Col className="text-start col-8" >
-                    <FormControl type="number" placeholder="100"></FormControl>
+                    <FormControl type="number" placeholder={`${assignment?.points}`}></FormControl>
                 </Col>
             </Row>
             <Row className="mb-4">
@@ -87,14 +85,14 @@ export default function AssignmentEditor() {
                             Due
                         </FormLabel>
                         <InputGroup className="mb-2">
-                            <FormControl type="date" placeholder="May 13, 2024, 11:59 PM" />
+                            <FormControl readOnly value={assignment?.due} />
                             <InputGroupText><CiCalendar /></InputGroupText>
                         </InputGroup>
                         <Row>
                             <Col>
                                 <FormLabel className="fw-bold">Available from</FormLabel>
                                 <InputGroup className="mb-2">
-                                    <FormControl type="date" placeholder="May 6, 2024, 12:00 AM" />
+                                    <FormControl readOnly value={assignment?.start} />
                                     <InputGroupText><CiCalendar /></InputGroupText>
                                 </InputGroup>
                             </Col>
@@ -112,11 +110,16 @@ export default function AssignmentEditor() {
         </Table>
         <hr />
         <div className="d-flex justify-content-end">
+
             <Button variant="secondary" className="rounded-sm me-1" >
+                <Link href={`/Courses/${cid}/Assignments`} className="text-decoration-none text-black">
                 Cancel
+                </Link>
             </Button>
             <Button variant="danger"  className="rounded-sm">
-                Save
+                <Link href={`/Courses/${cid}/Assignments`} className="text-decoration-none text-white">
+                    Save
+                </Link> 
             </Button>
         </div>
     </div>
