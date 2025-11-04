@@ -9,8 +9,8 @@ import { addNewCourse, deleteCourse, updateCourse, } from "../Courses/reducer";
 import { addNewEnrollment, deleteEnrollment } from "./reducer";
 export default function Dashboard() {
     const { courses } = useSelector((state: RootState) => state.coursesReducer);
-    const { currentUser } = useSelector((state: RootState) => state.accountReducer);
-    const isFaculty = currentUser?.role === "FACULTY"
+    const { currentUser } = useSelector((state: RootState) => (state.accountReducer as any));
+    const isFaculty = currentUser?.role === "FACULTY";
     const { enrollments } = useSelector((state: RootState) => state.enrollmentsReducer);
     const dispatch = useDispatch();
     const [course, setCourse] = useState<any>({

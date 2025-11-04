@@ -16,7 +16,7 @@ export default function Assignments() {
   const { cid } = useParams();
   const dispatch = useDispatch();
   const { assignments } = useSelector((state: RootState) => state.assignmentsReducer);
-  const { currentUser } = useSelector((state: RootState) => state.accountReducer);
+  const { currentUser } = useSelector((state: RootState) => state.accountReducer as any);
   const isFaculty = currentUser?.role == "FACULTY"
 
   return (
