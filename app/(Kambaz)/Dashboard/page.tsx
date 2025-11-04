@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client'
-import * as db from "../Database";
 import { RootState } from "../store";
 import Link from "next/link";
 import { Card, CardImg, Col, Row, CardBody, CardTitle, CardText, Button, FormControl } from "react-bootstrap";

@@ -2,7 +2,6 @@
 
 import { createSlice } from "@reduxjs/toolkit";
 import { assignments } from "../../../Database";
-import { v4 as uuidv4 } from "uuid";
 const initialState = {
     assignments: assignments,
 }
