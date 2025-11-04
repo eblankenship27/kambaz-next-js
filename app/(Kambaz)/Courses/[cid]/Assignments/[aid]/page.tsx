@@ -1,28 +1,50 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 "use client"
-import { useParams } from "next/navigation";
-import * as db from "../../../../Database";
-import { Button, Col, FormCheck, FormControl, FormLabel, FormSelect, InputGroup, Row, Table } from "react-bootstrap";
+import { redirect, useParams } from "next/navigation";
+import { Button, Col, FormControl, FormLabel, InputGroup, Row, Table } from "react-bootstrap";
 import InputGroupText from "react-bootstrap/esm/InputGroupText";
 import { CiCalendar } from "react-icons/ci";
-import Link from "next/link";
+import { useState } from "react";
+import { addAssignment, updateAssignment } from "../reducer";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../../../../store";
 
 export default function AssignmentEditor() {
     const { cid, aid } = useParams();
-
-    const assignment = db.assignments.find((assignment) => assignment._id === aid)
+    const { assignments } = useSelector((state: RootState) => state.assignmentsReducer )
+    const dispatch = useDispatch();
+    const [assignment, setAssignment] = useState<any>(assignments.find((a: any) => a._id === aid) ? assignments.find((a: any) => a._id === aid) : {
+        _id: aid,
+        title: "New Assignment",
+        description: "New Assignment Description",
+        points: 100,
+        course: cid,
+        start: "",
+        end: "",
+        due: "",
+    })
+    const handleSubmit = () => {
+        if (assignments.find((a) => a._id === aid)) {
+            dispatch(updateAssignment(assignment))
+        }
+        else {
+            dispatch(addAssignment(assignment))
+        }
+        redirect(`/Courses/${cid}/Assignments`)
+    }
   return (
     <div id="wd-assignments-editor">
         <FormLabel>Assignment Name</FormLabel>
-        <FormControl type="email" placeholder={assignment?.title} className="" />
+        <FormControl type="text" defaultValue={assignment.title} onChange={(e) => setAssignment({...assignment,  title: e.target.value})} />
         <br />
-        <div
-            contentEditable={true}
+        <FormControl
+            as="textarea"
             className="form-control"
-            style={{ minHeight: "100px" }}
-            suppressContentEditableWarning={true}
-            >
-            {assignment?.description}
-        </div>
+            rows={3}
+            defaultValue={assignment.description}
+            onChange={(e) => setAssignment({...assignment, description: e.target.value})}
+        />
         <br /><br />
         <Table className="gap-4">
             <Row className="mb-4">
@@ -30,46 +52,7 @@ export default function AssignmentEditor() {
                     Points
                 </Col>
                 <Col className="text-start col-8" >
-                    <FormControl type="number" placeholder={`${assignment?.points}`}></FormControl>
-                </Col>
-            </Row>
-            <Row className="mb-4">
-                <Col className="text-end">
-                    Assignment Group
-                </Col>
-                <Col className="text-start col-8">
-                    <FormSelect>
-                        <option value='assignments'>ASSIGNMENTS</option>
-                    </FormSelect>
-                </Col>
-            </Row>
-            <Row className="mb-4">
-                <Col className="text-end">
-                    Display Grade as
-                </Col>
-                <Col className="text-start col-8">
-                    <FormSelect>
-                        <option value="percentage">Percentage</option>
-                    </FormSelect>
-                </Col>
-            </Row>
-            <Row className="mb-4">
-                <Col className="text-end">
-                    Submission Type
-                </Col>
-                <Col className="text-start col-8">
-                    <div className="border rounded p-2">
-                        <FormSelect>
-                            <option value="online">Online</option>
-                        </FormSelect>
-                        <br />
-                        <div className="mb-2"><strong>Online Entry Options</strong></div>
-                        <FormCheck type="checkbox" label="Text Entry" className="mb-3" />
-                        <FormCheck type="checkbox" label="Website URL" className="mb-3" defaultChecked />
-                        <FormCheck type="checkbox" label="Media Recordings" className="mb-3" />
-                        <FormCheck type="checkbox" label="Student Annotation" className="mb-3" />
-                        <FormCheck type="checkbox" label="File Uploads" className="mb-3" />
-                    </div>
+                    <FormControl type="number" defaultValue={assignment.points} onChange={(e) => setAssignment({...assignment, points: e.target.value})} />
                 </Col>
             </Row>
             <Row className="mb-4">
@@ -78,28 +61,25 @@ export default function AssignmentEditor() {
                 </Col>
                 <Col className="text-start col-8">
                     <div className="border rounded p-2">
-                        <FormLabel className="fw-bold">Assign to</FormLabel>
-                        <FormSelect className="mb-2">
-                            <option value="everyone">Everyone</option>                        </FormSelect>
                         <FormLabel className="fw-bold" >
                             Due
                         </FormLabel>
                         <InputGroup className="mb-2">
-                            <FormControl readOnly value={assignment?.due} />
+                            <FormControl type="date" defaultValue={assignment.due} onChange={(e) => setAssignment({...assignment, due: e.target.value})} />
                             <InputGroupText><CiCalendar /></InputGroupText>
                         </InputGroup>
                         <Row>
                             <Col>
                                 <FormLabel className="fw-bold">Available from</FormLabel>
                                 <InputGroup className="mb-2">
-                                    <FormControl readOnly value={assignment?.start} />
+                                    <FormControl type="date" defaultValue={assignment.start} onChange={(e) => setAssignment({...assignment, start: e.target.value})} />
                                     <InputGroupText><CiCalendar /></InputGroupText>
                                 </InputGroup>
                             </Col>
                             <Col>
                                 <FormLabel className="fw-bold">Until</FormLabel>
                                 <InputGroup className="mb-2">
-                                    <FormControl type="date" placeholder="" />
+                                    <FormControl type="date" defaultValue={assignment.end} onChange={(e) => setAssignment({... assignment, end: e.target.value})} />
                                     <InputGroupText><CiCalendar /></InputGroupText>
                                 </InputGroup>
                             </Col>
@@ -110,16 +90,11 @@ export default function AssignmentEditor() {
         </Table>
         <hr />
         <div className="d-flex justify-content-end">
-
-            <Button variant="secondary" className="rounded-sm me-1" >
-                <Link href={`/Courses/${cid}/Assignments`} className="text-decoration-none text-black">
+            <Button variant="secondary" className="rounded-sm me-1" onClick={() => redirect(`/Courses/${cid}/Assignments`)} >
                 Cancel
-                </Link>
             </Button>
-            <Button variant="danger"  className="rounded-sm">
-                <Link href={`/Courses/${cid}/Assignments`} className="text-decoration-none text-white">
-                    Save
-                </Link> 
+            <Button variant="danger"  className="rounded-sm"  onClick={handleSubmit}>
+                Save
             </Button>
         </div>
     </div>
