@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 "use client"
@@ -5,15 +6,15 @@ import { redirect, useParams } from "next/navigation";
 import { Button, Col, FormControl, FormLabel, InputGroup, Row, Table } from "react-bootstrap";
 import InputGroupText from "react-bootstrap/esm/InputGroupText";
 import { CiCalendar } from "react-icons/ci";
-import { useState } from "react";
-import { addAssignment, updateAssignment } from "../reducer";
+import { useState, useEffect } from "react";
+import { setAssignments } from "../reducer";
+import * as client from "../../../client";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../../../store";
 
 export default function AssignmentEditor() {
     const { cid, aid } = useParams();
-    const { assignments } = useSelector((state: RootState) => state.assignmentsReducer )
-    const dispatch = useDispatch();
+    const { assignments } = useSelector((state: RootState) => state.assignmentsReducer );
     const [assignment, setAssignment] = useState<any>(assignments.find((a: any) => a._id === aid) ? assignments.find((a: any) => a._id === aid) : {
         _id: aid,
         title: "New Assignment",
@@ -24,12 +25,31 @@ export default function AssignmentEditor() {
         end: "",
         due: "",
     })
+    const dispatch = useDispatch();
+    const fetchAssignments = async () => {
+        const assignments = await client.findAssignmentsForCourse(cid as string);
+        dispatch(setAssignments(assignments));
+    };
+    const onUpdateAssignment = async (assignment: any) => {
+        await client.updateAssignment(assignment);
+        const newAssignments = assignments.map((a: any) => a._id === assignment._id ? assignment : a );
+        dispatch(setAssignments(newAssignments));
+    }
+    useEffect(() => {
+        fetchAssignments();
+    }, []);
+        const onCreateAssignmentForCourse = async () => {
+        if (!cid) return;
+        const newAssignment = { ...assignment, course: cid};
+        const returnedAssignment = await client.createAssignmentForCourse(cid as string, newAssignment);
+        dispatch(setAssignments([...assignments, returnedAssignment]));
+    };
     const handleSubmit = () => {
-        if (assignments.find((a) => a._id === aid)) {
-            dispatch(updateAssignment(assignment))
+        if (assignments.find((a: any) => a._id === aid)) {
+            onUpdateAssignment(assignment)
         }
         else {
-            dispatch(addAssignment(assignment))
+            onCreateAssignmentForCourse()
         }
         redirect(`/Courses/${cid}/Assignments`)
     }
