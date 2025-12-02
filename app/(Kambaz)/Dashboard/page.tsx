@@ -8,7 +8,7 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as client from "../Courses/client";
 import { deleteCourse, setCourses } from "../Courses/reducer";
-import { setEnrollments } from "./reducer";
+import { addNewEnrollment, deleteEnrollment, setEnrollments } from "./reducer";
 export default function Dashboard() {
     const { courses } = useSelector((state: RootState) => state.coursesReducer);
     const { currentUser } = useSelector((state: RootState) => (state.accountReducer as any));
@@ -47,7 +47,7 @@ export default function Dashboard() {
     }
     useEffect(() => {
         fetchEnrollments();
-    }, []);
+    }, [currentUser]);
     const onAddNewCourse = async () => {
         const newCourse = await client.createCourse(course);
         dispatch(setCourses([ ...courses, newCourse ]));
@@ -60,12 +60,12 @@ export default function Dashboard() {
         })));
     };
     const onCreateEnrollmentForCourse = async (cid: string) => {
-        const enrollment = await client.enrollUserInCourse(cid, currentUser._id);
-        dispatch(setEnrollments([...enrollments, enrollment]));
+        const enrollment = await client.enrollUserInCourse(currentUser._id, cid);
+        dispatch(addNewEnrollment(enrollment));
     };
-    const onDeleteEnrollment = async (enrollmentId: string) => {
-        await client.deleteEnrollment(enrollmentId);
-        dispatch(setEnrollments(enrollments.filter((enrollment: any) => enrollment._id !== enrollmentId)));
+    const onDeleteEnrollment = async (cid: string, enrollmentId: string) => {
+        await client.unenrollFromCourse(currentUser._id, cid);
+        dispatch(deleteEnrollment(enrollmentId))
     }
     const [displayAll, setDisplayAll] = useState(false);
     useEffect(() => {
@@ -74,7 +74,7 @@ export default function Dashboard() {
         } else {
             fetchCourses();
         }
-        
+        fetchEnrollments();
     }, [currentUser, displayAll]);
     if (!currentUser) {
         return (
@@ -140,9 +140,10 @@ export default function Dashboard() {
             ))}
             { displayAll && courses.map((course: any) => {
 
-                const enrollment = enrollments.find((enrollment: any) => enrollment.user === currentUser._id && enrollment.course === course._id);
-                const enrollmentId = enrollment?._id;
-                const cid = course._id
+                const enrollment = Array.isArray(enrollments)
+                    ? enrollments.find((enrollment: any) => enrollment.user === currentUser._id && enrollment.course === course._id)
+                    : undefined;
+                 const cid = course._id
 
                 return (
                 <Col className="wd-dashboard-course" key={course._id} style={{ width: "300px" }}>
@@ -159,7 +160,7 @@ export default function Dashboard() {
                                     {enrollment ? (
                                         <button className="btn btn-danger float-end" onClick={(e) => { 
                                             e.preventDefault();
-                                            onDeleteEnrollment(enrollmentId)
+                                            onDeleteEnrollment(cid, enrollment._id)
                                         }}>Unenroll</button>
                                     ) : (
                                         <button className="btn btn-primary float-end" onClick={(e) => {

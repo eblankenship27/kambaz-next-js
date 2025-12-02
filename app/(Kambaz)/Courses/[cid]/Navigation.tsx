@@ -10,7 +10,7 @@ export default function CourseNavigation() {
   return (
     <ListGroup id="wd-course-navigation" className="wd list-group fs-5 rounded-0">
       {links.map((link) => (
-        <ListGroupItem key={link} as={Link} href={`/Courses/${cid}/${link === "People" ? "People/Table" : link}`} className={`list-group-item text-center border-0 ${pathname.includes(link) ? "active" : "text-danger" }`}>
+        <ListGroupItem key={link} as={Link} href={`/Courses/${cid}/${link === "People" ? "People" : link}`} className={`list-group-item text-center border-0 ${pathname.includes(link) ? "active" : "text-danger" }`}>
           {link}
         </ListGroupItem>
       ))}
